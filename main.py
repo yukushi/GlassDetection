@@ -19,15 +19,15 @@ H = [[-5.24959249e+01, -6.37688338e+01, 1.69839096e+04],
      [ 1.02243118e+00, -1.22654622e+02, 1.84377541e+04],
      [ 3.31747014e-03, -2.04791218e-01, 1.00000000e+00]]
 H = np.array(H)
-def pixelDistance(c):
 
+def pixelDistance(c):
     point1  = np.array(c[0])
     point2  = np.array(c[1])
 
     u = point2 - point1
     dist = np.linalg.norm(u)
-    return point1,point2,dist
 
+    return point1,point2,dist
 
 def labeling(frame,mask,jg=0):
     """
@@ -47,8 +47,7 @@ def labeling(frame,mask,jg=0):
 
     #ラベル数0の時に表示
     if(la-1 == 0):
-        print("Not detected!")
-        #cv2.imshow("original",frame)
+        print('\rNot Detected!',end='')
         return frame
 
     for i in range(la-1):
@@ -64,9 +63,8 @@ def labeling(frame,mask,jg=0):
         
         #範囲外無視，ラベル数制限
         if(data[i][4] <=1) or (la-1 >= 30) or (centerX<260) or (centerX>400):
-            print("skip")
+            print('\rSkip!',end='')
             cv2.imshow("original",frame)
-            #break
             return frame
 
         #labelを囲うレクタングルプロット
@@ -91,10 +89,13 @@ def labeling(frame,mask,jg=0):
         print(table.draw())
         #距離を求める
         p1,p2,dist = pixelDistance(point)
-        print("Distance = ",dist)
-
+        print("| Distance = ",dist)
+        print("+----------+-------+--------+---------+---------+------+")
         #距離プロット
         frame = cv2.line(frame2,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,255,0),3)
+
+        font = cv2.FONT_HERSHEY_PLAIN
+        frame = cv2.putText(frame2,str(dist),(int(p1[0]+20),300),font,4,(0,0,255),2,cv2.LINE_AA)
     elif(la-1 == 2 and jg == 0 and point is not None and len(point) is not 0):
         p1,p2,dist = pixelDistance(point)
         frame = cv2.line(frame,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,0,0),3)
