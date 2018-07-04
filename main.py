@@ -14,6 +14,13 @@ IN = 0
 LO = np.array([40,70,150])
 UP = np.array([85,255,255])
 
+#Transformation matrix
+H = [[-5.24959249e+01, -6.37688338e+01, 1.69839096e+04],
+     [ 1.02243118e+00, -1.22654622e+02, 1.84377541e+04],
+     [ 3.31747014e-03, -2.04791218e-01, 1.00000000e+00]]
+H = np.array(H)
+
+
 def labeling(frame,mask):
     """
     ラベリングを行う．
@@ -72,6 +79,15 @@ def labeling(frame,mask):
     print(table.draw())
     return frame
 
+def pTrans(frame):
+    """
+    射影変換を行う．
+    事前に求めたホモグラフィ行列を用いる．
+    """
+    hframe = cv2.warpPerspective(frame,H,(w,h))
+    hframe = cv2.resize(hframe,(w*2,h*2))
+    return hframe
+
 def circleDetect():
     """
     ハフ変換を用いて円の検出を行う．
@@ -88,6 +104,8 @@ if __name__ == '__main__':
 
     while(True):
         ret,frame = cap.read()
+        global h,w
+        h,w = frame.shape[:2]
 
         frame = cv2.medianBlur(frame,5)
 
@@ -99,6 +117,9 @@ if __name__ == '__main__':
         enen = cv2.GaussianBlur(mask,(33,33),1)
         col = cv2.bitwise_and(frame,frame,mask=mask)
 
+        #Perspective Trans
+        frame2 = pTrans(frame)
+
         #labeling
         frame = labeling(frame,mask)
 
@@ -106,7 +127,7 @@ if __name__ == '__main__':
         frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
 
         cv2.imshow("original",frame)
-        #cv2.imshow("mask1",mask)
+        cv2.imshow("pTrans",frame2)
         cv2.imshow("color",col)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
