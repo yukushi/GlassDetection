@@ -31,7 +31,8 @@ def pixelDistance(c):
 
 def labeling(frame,mask,jg=0):
     """
-    ラベリングを行う． 数，高さと幅，面積，センター座標を取得する．
+    ラベリングを行う．
+     数，高さと幅，面積，センター座標を取得する．
     必要外のラベルは排除する．
     """
 
@@ -94,8 +95,14 @@ def labeling(frame,mask,jg=0):
         #距離プロット
         frame = cv2.line(frame2,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,255,0),3)
 
+        #ガラス面推測
+        gLine = int((p1[1]+p2[1])/2)
+        frame = cv2.line(frame2,(0,gLine),(640,gLine),(0,0,255),3)
+
         font = cv2.FONT_HERSHEY_PLAIN
-        frame = cv2.putText(frame2,str(dist),(int(p1[0]+20),300),font,4,(0,0,255),2,cv2.LINE_AA)
+        frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),2,cv2.LINE_AA)
+        
     elif(la-1 == 2 and jg == 0 and point is not None and len(point) is not 0):
         p1,p2,dist = pixelDistance(point)
         frame = cv2.line(frame,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,0,0),3)
