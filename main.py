@@ -3,7 +3,9 @@
 
 import numpy as np
 import cv2
+from mouseEvent import *
 from texttable import Texttable
+
 
 
 
@@ -19,6 +21,7 @@ H = [[-5.24959249e+01, -6.37688338e+01, 1.69839096e+04],
      [ 1.02243118e+00, -1.22654622e+02, 1.84377541e+04],
      [ 3.31747014e-03, -2.04791218e-01, 1.00000000e+00]]
 H = np.array(H)
+
 
 def pixelDistance(c):
     point1  = np.array(c[0])
@@ -129,11 +132,16 @@ def circleDetect():
         for i in circles[0,:]:
             cv2.circle(frame,(i[0],i[1]),i[2],(255,255,0),2)
 
+
+
 if __name__ == '__main__':
     cap  = cv2.VideoCapture(IN)
 
     while(cap.isOpened()):
         ret,frame = cap.read()
+        cv2.namedWindow("original",cv2.WINDOW_NORMAL)
+        cv2.setMouseCallback("original",clickPoint,frame)
+        
         ###global h,w
         frameH,frameW = frame.shape[:2]
 
@@ -159,12 +167,15 @@ if __name__ == '__main__':
         #検出範囲のプロット
         frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
         frame2 = cv2.rectangle(frame2,(260,10),(400,470),(0,0,255),1)
+        
 
 
         cv2.imshow("original",frame)
         #cv2.imshow("GreenCheck",green)
         #cv2.imshow("pTrans",syaMask)
         cv2.imshow("pTransLabel",frame2)
+        #cv2.imshow("pTransPoint",frame3)
+        syaeiFrame(frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
