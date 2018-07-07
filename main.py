@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 import numpy as np
 import cv2
 from mouseEvent import *
@@ -91,10 +90,12 @@ def labeling(frame,mask,jg=0):
     if(la-1 == 2 and jg == 1 and point is not None):
         #テーブル表示
         print(table.draw())
+
         #距離を求める
         p1,p2,dist = pixelDistance(point)
         print("| Distance = ",dist)
         print("+----------+-------+--------+---------+---------+------+")
+
         #距離プロット
         frame = cv2.line(frame2,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,255,0),3)
 
@@ -102,6 +103,7 @@ def labeling(frame,mask,jg=0):
         gLine = int((p1[1]+p2[1])/2)
         frame = cv2.line(frame2,(0,gLine),(640,gLine),(0,0,255),3)
 
+        #Glassと表示
         font = cv2.FONT_HERSHEY_PLAIN
         frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
         frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),2,cv2.LINE_AA)
@@ -132,8 +134,6 @@ def circleDetect():
         for i in circles[0,:]:
             cv2.circle(frame,(i[0],i[1]),i[2],(255,255,0),2)
 
-
-
 if __name__ == '__main__':
     cap  = cv2.VideoCapture(IN)
 
@@ -142,7 +142,6 @@ if __name__ == '__main__':
         cv2.namedWindow("original",cv2.WINDOW_NORMAL)
         cv2.setMouseCallback("original",clickPoint,frame)
         
-        ###global h,w
         frameH,frameW = frame.shape[:2]
 
         frame = cv2.medianBlur(frame,5)
@@ -168,14 +167,12 @@ if __name__ == '__main__':
         frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
         frame2 = cv2.rectangle(frame2,(260,10),(400,470),(0,0,255),1)
         
-
+        #クリックで指定した変換結果を表示
+        syaeiFrame(frame)
+        frame = clickPointCircle(frame) #クリック点プロット
 
         cv2.imshow("original",frame)
-        #cv2.imshow("GreenCheck",green)
-        #cv2.imshow("pTrans",syaMask)
         cv2.imshow("pTransLabel",frame2)
-        #cv2.imshow("pTransPoint",frame3)
-        syaeiFrame(frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

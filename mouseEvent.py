@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import cv2
 import numpy as np
 
@@ -22,6 +24,16 @@ def clickPoint(event,x,y,flags,param):
 
             print("変換結果表示\n")
             cPoint = []
+
+def clickPointCircle(frame):
+    """
+    クリック点を表示する
+    """
+
+    circleCount = len(cPoint)
+    for i in range(circleCount):
+        frame = cv2.circle(frame,(cPoint[i][0],cPoint[i][1]),10,(0,0,255),3)
+    return frame
 
 def syaeiFrame(frame):
     if len(H2) == 3:
