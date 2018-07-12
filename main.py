@@ -21,7 +21,6 @@ H = [[-5.24959249e+01, -6.37688338e+01, 1.69839096e+04],
      [ 3.31747014e-03, -2.04791218e-01, 1.00000000e+00]]
 H = np.array(H)
 
-
 def pixelDistance(c):
     point1  = np.array(c[0])
     point2  = np.array(c[1])
@@ -140,11 +139,11 @@ if __name__ == '__main__':
     while(cap.isOpened()):
         ret,frame = cap.read()
         cv2.namedWindow("original",cv2.WINDOW_NORMAL)
-        cv2.setMouseCallback("original",clickPoint,frame)
-        
         frameH,frameW = frame.shape[:2]
-
         frame = cv2.medianBlur(frame,5)
+
+        #Mouse event
+        cv2.setMouseCallback("original",clickPoint,frame)
 
         #HSV GreenMask
         hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
