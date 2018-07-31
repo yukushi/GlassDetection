@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture(0)
+IN = 1
+cap = cv2.VideoCapture(IN)
 
 while(True):
     ret, frame = cap.read()
