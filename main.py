@@ -9,17 +9,18 @@ from texttable import Texttable
 
 
 #InputVideoNo
-IN = 0
+IN = 1
 
 #HSV-Range
 LO = np.array([40,70,150])
 UP = np.array([85,255,255])
 
-#Transformation matrix
-H = [[-5.24959249e+01, -6.37688338e+01, 1.69839096e+04],
-     [ 1.02243118e+00, -1.22654622e+02, 1.84377541e+04],
-     [ 3.31747014e-03, -2.04791218e-01, 1.00000000e+00]]
+H = [[ 3.38755978e+01,  4.28291367e+01, -1.03256465e+04],
+      [-1.90794828e-01,  9.08031213e+01, -1.37086084e+04],
+      [-7.85163902e-04,  1.37403683e-01,  1.00000000e+00]]
 H = np.array(H)
+
+PIX_DIST = 3.835013386
 
 def pixelDistance(c):
     point1  = np.array(c[0])
@@ -27,6 +28,7 @@ def pixelDistance(c):
 
     u = point2 - point1
     dist = np.linalg.norm(u)
+    dist = dist*3.875013386
 
     return point1,point2,dist
 
@@ -102,9 +104,12 @@ def labeling(frame,mask,jg=0):
         gLine = int((p1[1]+p2[1])/2)
         frame = cv2.line(frame2,(0,gLine),(640,gLine),(0,0,255),3)
 
-        #Glassと表示
         font = cv2.FONT_HERSHEY_PLAIN
-        frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        #距離の表示
+        dist = str(int(dist))+'mm'
+        #frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        frame = cv2.putText(frame2,dist,(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        #Glassと表示
         frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),2,cv2.LINE_AA)
         
     elif(la-1 == 2 and jg == 0 and point is not None and len(point) is not 0):
