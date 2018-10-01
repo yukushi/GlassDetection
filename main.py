@@ -22,6 +22,10 @@ H = np.array(H)
 
 PIX_DIST = 3.835013386
 
+#Degree and Height
+DEG = 45        #レーザポインタの照射角度
+HEIGHT = 700    #レーザポインタの高さ
+
 def pixelDistance(c):
     point1  = np.array(c[0])
     point2  = np.array(c[1])
@@ -107,9 +111,17 @@ def labeling(frame,mask,jg=0):
         font = cv2.FONT_HERSHEY_PLAIN
         #距離の表示
         dist = str(int(dist))+'mm'
+
+        #ガラスまでの距離計算(ガラス手前に照射した場合))
+        laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG))) #照射点までの距離
+        glass_dist = laser_irradiation_point + int(dist)/2
+        frame = cv2.putText(frame2,str(glass_dist)+"mm",(30,30)),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
+
         #frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        
+        #2点間の距離プロット
         frame = cv2.putText(frame2,dist,(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
-        #Glassと表示
+        #Glassとプロット
         frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),2,cv2.LINE_AA)
         
     elif(la-1 == 2 and jg == 0 and point is not None and len(point) is not 0):
