@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 from mouseEvent import *
 from texttable import Texttable
-
+import math
 
 
 
@@ -110,12 +110,14 @@ def labeling(frame,mask,jg=0):
 
         font = cv2.FONT_HERSHEY_PLAIN
         #距離の表示
+        dist_int = dist
         dist = str(int(dist))+'mm'
 
         #ガラスまでの距離計算(ガラス手前に照射した場合))
         laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG))) #照射点までの距離
-        glass_dist = laser_irradiation_point + int(dist)/2
-        frame = cv2.putText(frame2,str(glass_dist)+"mm",(30,30)),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
+        glass_dist = laser_irradiation_point + int(dist_int)/2
+        frame = cv2.putText(frame2,str(glass_dist)+"mm",(80,gLine+50),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
+        frame = cv2.arrowedLine(frame2,(70,frameH),(70,gLine),(255,55,0),thickness=4) #矢印
 
         #frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
         
