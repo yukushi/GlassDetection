@@ -57,6 +57,9 @@ def labeling(frame,mask,jg=0):
     if(la-1 == 0):
         print('\rNot Detected!',end='')
         return frame
+    elif(la-1 >= 3):
+        print('\rToo many objects for labeling',end='')
+        return frame
 
     for i in range(la-1):
         #labelの始点とサイズ情報
@@ -71,7 +74,7 @@ def labeling(frame,mask,jg=0):
         
         #範囲外無視，ラベル数制限
         if(data[i][4] <=1) or (la-1 >= 30) or (centerX<260) or (centerX>400):
-            print('\rSkip!',end='')
+            print('\rSkip!                        ',end='')
             cv2.imshow("original",frame)
             return frame
 
@@ -94,6 +97,7 @@ def labeling(frame,mask,jg=0):
         
     if(la-1 == 2 and jg == 1 and point is not None):
         #テーブル表示
+        print("\n")
         print(table.draw())
 
         #距離を求める
@@ -113,16 +117,29 @@ def labeling(frame,mask,jg=0):
         dist_int = dist
         dist = str(int(dist))+'mm'
 
+        #照射点までの距離
+        laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG)))
+
         #ガラスまでの距離計算(ガラス手前に照射した場合))
-        laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG))) #照射点までの距離
+        print(center[0][0],center[0][1])
+
+        for i in range(2):
+            if(center[i][0] > 290 and center[i][0] < 330 and center[i][1] > 290 and center[i][1] < 330):
+                frame = cv2.putText(frame2,"Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
+                point_position = i
+                print(point_position) # 0->ガラスに反射した場合,1->ガラスの手前に照射した場合
+            else:
+                frame = cv2.putText(frame2,"Reflection Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
+
         glass_dist = laser_irradiation_point + int(dist_int)/2
+        
         frame = cv2.putText(frame2,str(glass_dist)+"mm",(80,gLine+50),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
         frame = cv2.arrowedLine(frame2,(70,frameH),(70,gLine),(255,55,0),thickness=4) #矢印
 
         #frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
         
         #2点間の距離プロット
-        frame = cv2.putText(frame2,dist,(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        #frame = cv2.putText(frame2,dist,(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
         #Glassとプロット
         frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),2,cv2.LINE_AA)
         
