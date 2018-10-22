@@ -5,6 +5,7 @@ import cv2
 from mouseEvent import *
 from texttable import Texttable
 import math
+import subprocess
 
 
 
@@ -73,7 +74,7 @@ def labeling(frame,mask,jg=0):
         centerY = center[i][1]
         
         #範囲外無視，ラベル数制限
-        if(data[i][4] <=1) or (la-1 >= 30) or (centerX<260) or (centerX>400):
+        if(data[i][4] <=2) or (la-1 >= 30) or (centerX<260) or (centerX>400):
             print('\rSkip!                        ',end='')
             cv2.imshow("original",frame)
             return frame
@@ -120,11 +121,10 @@ def labeling(frame,mask,jg=0):
         #照射点までの距離
         laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG)))
 
-        #ガラスまでの距離計算(ガラス手前に照射した場合))
         print(center[0][0],center[0][1])
 
         for i in range(2):
-            if(center[i][0] > 290 and center[i][0] < 330 and center[i][1] > 290 and center[i][1] < 330):
+            if(center[i][0] > 290 and center[i][0] < 360 and center[i][1] > 290 and center[i][1] < 360):
                 frame = cv2.putText(frame2,"Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
                 point_position = i
                 print(point_position) # 0->ガラスに反射した場合,1->ガラスの手前に照射した場合
@@ -171,6 +171,11 @@ def circleDetect():
 
 if __name__ == '__main__':
     cap  = cv2.VideoCapture(IN)
+    
+    #露出調整
+    cmd = 'v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=100'
+    ret = subprocess.check_output(cmd,shell=True)
+
 
     while(cap.isOpened()):
         ret,frame = cap.read()
@@ -178,8 +183,16 @@ if __name__ == '__main__':
         frameH,frameW = frame.shape[:2]
         frame = cv2.medianBlur(frame,5)
 
+
         #Mouse event
         cv2.setMouseCallback("original",clickPoint,frame)
+
+        #ガンマ補正
+        gamma = 0.70
+        gamma_cvt = np.zeros((256,1),dtype = 'uint8')
+        for aaa in range(256):
+            gamma_cvt[aaa][0] = 255*(float(aaa)/255) ** (1.0/gamma)
+        frame = cv2.LUT(frame,gamma_cvt)
 
         #HSV GreenMask
         hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
@@ -201,6 +214,7 @@ if __name__ == '__main__':
         #検出範囲のプロット
         frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
         frame2 = cv2.rectangle(frame2,(260,10),(400,470),(0,0,255),1)
+        frame2 = cv2.rectangle(frame2,(290,290),(360,360),(0,0,255),1)
         
         #クリックで指定した変換結果を表示
         syaeiFrame(frame)
@@ -208,6 +222,7 @@ if __name__ == '__main__':
 
         cv2.imshow("original",frame)
         cv2.imshow("pTransLabel",frame2)
+        cv2.imshow("mask",mask)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
