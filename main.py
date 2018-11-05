@@ -25,7 +25,9 @@ PIX_DIST = 3.835013386
 
 #Degree and Height
 DEG = 45        #レーザポインタの照射角度
-HEIGHT = 700    #レーザポインタの高さ
+HEIGHT = 720    #レーザポインタの高さ
+
+point_position = 0
 
 def pixelDistance(c):
     point1  = np.array(c[0])
@@ -56,7 +58,7 @@ def labeling(frame,mask,jg=0):
 
     #ラベル数0の時に表示
     if(la-1 == 0):
-        print('\rNot Detected!',end='')
+        print('\rNot Detected!                 ',end='')
         return frame
     elif(la-1 >= 3):
         print('\rToo many objects for labeling',end='')
@@ -74,7 +76,7 @@ def labeling(frame,mask,jg=0):
         centerY = center[i][1]
         
         #範囲外無視，ラベル数制限
-        if(data[i][4] <=2) or (la-1 >= 30) or (centerX<260) or (centerX>400):
+        if(data[i][4] <=2) or (la-1 >= 30) or (centerX<260) or (centerX>400) or (centerY<100):
             print('\rSkip!                        ',end='')
             cv2.imshow("original",frame)
             return frame
@@ -101,7 +103,7 @@ def labeling(frame,mask,jg=0):
         print("\n")
         print(table.draw())
 
-        #距離を求める
+        #2点間の距離を求める
         p1,p2,dist = pixelDistance(point)
         print("| Distance = ",dist)
         print("+----------+-------+--------+---------+---------+------+")
@@ -123,17 +125,23 @@ def labeling(frame,mask,jg=0):
 
         print(center[0][0],center[0][1])
 
+
         for i in range(2):
-            if(center[i][0] > 290 and center[i][0] < 360 and center[i][1] > 290 and center[i][1] < 360):
+            if(center[i][0] > 290 and center[i][0] < 360 and center[i][1] > 300 and center[i][1] < 340):
                 frame = cv2.putText(frame2,"Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
                 point_position = i
                 print(point_position) # 0->ガラスに反射した場合,1->ガラスの手前に照射した場合
+                if(point_position == 1):
+                    glass_dist = laser_irradiation_point + int(dist_int)/2
+                    print("足しました")
+                else:
+                    glass_dist = laser_irradiation_point - int(dist_int)/2
+                    print("ひきました")
+                print("glass_dist=",glass_dist)
+                frame = cv2.putText(frame2,str(glass_dist)+"mm",(80,gLine+50),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
             else:
                 frame = cv2.putText(frame2,"Reflection Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
-
-        glass_dist = laser_irradiation_point + int(dist_int)/2
         
-        frame = cv2.putText(frame2,str(glass_dist)+"mm",(80,gLine+50),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
         frame = cv2.arrowedLine(frame2,(70,frameH),(70,gLine),(255,55,0),thickness=4) #矢印
 
         #frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
@@ -183,7 +191,6 @@ if __name__ == '__main__':
         frameH,frameW = frame.shape[:2]
         frame = cv2.medianBlur(frame,5)
 
-
         #Mouse event
         cv2.setMouseCallback("original",clickPoint,frame)
 
@@ -214,7 +221,8 @@ if __name__ == '__main__':
         #検出範囲のプロット
         frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
         frame2 = cv2.rectangle(frame2,(260,10),(400,470),(0,0,255),1)
-        frame2 = cv2.rectangle(frame2,(290,290),(360,360),(0,0,255),1)
+        #照射予測点
+        frame2 = cv2.rectangle(frame2,(290,300),(360,340),(0,0,255),1)
         
         #クリックで指定した変換結果を表示
         syaeiFrame(frame)
