@@ -78,7 +78,7 @@ def labeling(frame,mask,jg=0):
         #範囲外無視，ラベル数制限
         if(data[i][4] <=2) or (la-1 >= 30) or (centerX<260) or (centerX>400) or (centerY<100):
             print('\rSkip!                        ',end='')
-            cv2.imshow("original",frame)
+            #cv2.imshow("original",frame)
             return frame
 
         #labelを囲うレクタングルプロット
@@ -96,7 +96,7 @@ def labeling(frame,mask,jg=0):
 
         point.append([centerX,centerY])
 
-        frame = cv2.rectangle(frame,(sx,sy),(sx2,sy2),(0,255,255),2)
+        frame = cv2.rectangle(frame,(sx,sy),(sx2,sy2),(0,255,255),1)
         
     if(la-1 == 2 and jg == 1 and point is not None):
         #テーブル表示
@@ -123,33 +123,26 @@ def labeling(frame,mask,jg=0):
         #照射点までの距離
         laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG)))
 
-        print(center[0][0],center[0][1])
-
-
         for i in range(2):
             if(center[i][0] > 290 and center[i][0] < 360 and center[i][1] > 300 and center[i][1] < 340):
-                frame = cv2.putText(frame2,"Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
+                frame = cv2.putText(frame2,"Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),1,cv2.LINE_AA)
                 point_position = i
                 print(point_position) # 0->ガラスに反射した場合,1->ガラスの手前に照射した場合
                 if(point_position == 1):
                     glass_dist = laser_irradiation_point + int(dist_int)/2
-                    print("足しました")
                 else:
                     glass_dist = laser_irradiation_point - int(dist_int)/2
-                    print("ひきました")
                 print("glass_dist=",glass_dist)
                 frame = cv2.putText(frame2,str(glass_dist)+"mm",(80,gLine+50),font,2,(255,55,0),2,cv2.LINE_AA) #ガラスまでの距離プロット
             else:
-                frame = cv2.putText(frame2,"Reflection Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),2,cv2.LINE_AA)
+                frame = cv2.putText(frame2,"Reflection Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),1,cv2.LINE_AA)
         
-        frame = cv2.arrowedLine(frame2,(70,frameH),(70,gLine),(255,55,0),thickness=4) #矢印
-
-        #frame = cv2.putText(frame2,str(int(dist)),(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
+        frame = cv2.arrowedLine(frame2,(30,frameH),(30,gLine),(255,55,0),thickness=4) #矢印
         
         #2点間の距離プロット
         #frame = cv2.putText(frame2,dist,(int(p1[0]+20),300),font,2,(255,255,0),2,cv2.LINE_AA)
         #Glassとプロット
-        frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),2,cv2.LINE_AA)
+        frame = cv2.putText(frame2,"Glass",(0,gLine),font,2,(0,0,255),1,cv2.LINE_AA)
         
     elif(la-1 == 2 and jg == 0 and point is not None and len(point) is not 0):
         p1,p2,dist = pixelDistance(point)
@@ -187,12 +180,11 @@ if __name__ == '__main__':
 
     while(cap.isOpened()):
         ret,frame = cap.read()
-        cv2.namedWindow("original",cv2.WINDOW_NORMAL)
         frameH,frameW = frame.shape[:2]
         frame = cv2.medianBlur(frame,5)
 
         #Mouse event
-        cv2.setMouseCallback("original",clickPoint,frame)
+        #cv2.setMouseCallback("original",clickPoint,frame)
 
         #ガンマ補正
         gamma = 0.70
@@ -215,22 +207,22 @@ if __name__ == '__main__':
         syaMask = cv2.inRange(frame2hsv,LO,UP)
 
         #labeling
-        frame = labeling(frame,mask)
+        #frame = labeling(frame,mask)
         frame2 = labeling(frame2,syaMask,1)
 
         #検出範囲のプロット
-        frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
+        #frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
         frame2 = cv2.rectangle(frame2,(260,10),(400,470),(0,0,255),1)
         #照射予測点
         frame2 = cv2.rectangle(frame2,(290,300),(360,340),(0,0,255),1)
         
         #クリックで指定した変換結果を表示
-        syaeiFrame(frame)
-        frame = clickPointCircle(frame) #クリック点プロット
+        #syaeiFrame(frame)
+        #frame = clickPointCircle(frame) #クリック点プロット
 
-        cv2.imshow("original",frame)
-        cv2.imshow("pTransLabel",frame2)
+        #cv2.imshow("original",frame)
         cv2.imshow("mask",mask)
+        cv2.imshow("pTransLabel",frame2)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
