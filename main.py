@@ -108,8 +108,8 @@ def labeling(frame,mask,jg=0):
         print("| Distance = ",dist)
         print("+----------+-------+--------+---------+---------+------+")
 
-        #距離プロット
-        frame = cv2.line(frame2,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,255,0),3)
+        #2点間を結ぶラインをプロット
+        frame = cv2.line(frame2,(int(p1[0]),int(p1[1])),(int(p2[0]),int(p2[1])),(255,220,0),3)
 
         #ガラス面推測
         gLine = int((p1[1]+p2[1])/2)
@@ -124,7 +124,7 @@ def labeling(frame,mask,jg=0):
         laser_irradiation_point = int(HEIGHT * math.tan(math.radians(DEG)))
 
         for i in range(2):
-            if(center[i][0] > 290 and center[i][0] < 360 and center[i][1] > 300 and center[i][1] < 340):
+            if(center[i][0] > 270 and center[i][0] < 310 and center[i][1] > 320 and center[i][1] < 360):
                 frame = cv2.putText(frame2,"Point",(int(center[i][0]+40),int(center[i][1])),font,1,(55,255,55),1,cv2.LINE_AA)
                 point_position = i
                 print(point_position) # 0->ガラスに反射した場合,1->ガラスの手前に照射した場合
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     cap  = cv2.VideoCapture(IN)
     
     #露出調整
-    cmd = 'v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=100'
+    cmd = 'v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=5'
     ret = subprocess.check_output(cmd,shell=True)
 
 
@@ -214,7 +214,7 @@ if __name__ == '__main__':
         #frame = cv2.rectangle(frame,(260,10),(400,470),(0,0,255),1)
         frame2 = cv2.rectangle(frame2,(260,10),(400,470),(0,0,255),1)
         #照射予測点
-        frame2 = cv2.rectangle(frame2,(290,300),(360,340),(0,0,255),1)
+        frame2 = cv2.rectangle(frame2,(270,320),(310,360),(0,0,255),1)
         
         #クリックで指定した変換結果を表示
         #syaeiFrame(frame)
