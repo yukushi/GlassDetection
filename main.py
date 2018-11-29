@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import numpy as np
 import cv2
 from mouseEvent import *
@@ -28,6 +29,8 @@ DEG = 45        #レーザポインタの照射角度
 HEIGHT = 720    #レーザポインタの高さ
 
 point_position = 0
+
+expoValue = "100"
 
 def pixelDistance(c):
     point1  = np.array(c[0])
@@ -170,13 +173,30 @@ def circleDetect():
         for i in circles[0,:]:
             cv2.circle(frame,(i[0],i[1]),i[2],(255,255,0),2)
 
-if __name__ == '__main__':
-    cap  = cv2.VideoCapture(IN)
-    
+def changeExposureValue():
+    """
+    カメラの露出調整を1~5キーを使って行う．
+    """
+    global expoValue
+
+    if cv2.waitKey(1) & 0xFF == ord('1'):
+        expoValue= "150"
+    elif cv2.waitKey(1) & 0xFF == ord('2'):
+        expoValue = "100"
+    elif cv2.waitKey(1) & 0xFF == ord('3'):
+        expoValue = "50"
+    elif cv2.waitKey(1) & 0xFF == ord('4'):
+        expoValue = "25"
+    elif cv2.waitKey(1) & 0xFF == ord('5'):
+        expoValue = "10"
+
     #露出調整
-    cmd = 'v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=5'
+    cmd = 'v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute={}'
+    cmd = cmd.format(expoValue)
     ret = subprocess.check_output(cmd,shell=True)
 
+if __name__ == '__main__':
+    cap  = cv2.VideoCapture(IN)
 
     while(cap.isOpened()):
         ret,frame = cap.read()
@@ -219,6 +239,9 @@ if __name__ == '__main__':
         #クリックで指定した変換結果を表示
         #syaeiFrame(frame)
         #frame = clickPointCircle(frame) #クリック点プロット
+
+        #露出度調整
+        changeExposureValue()
 
         #cv2.imshow("original",frame)
         cv2.imshow("mask",mask)
